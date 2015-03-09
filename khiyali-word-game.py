@@ -64,17 +64,32 @@ def build_encoded_answer(answer, cipher, alphabet):
 #print "cur_phrase is {0} ".format(cur_phrase)
 
 
-def handle_valid_guess(encoded_letter, decoded_letter, encoded_answer, cipher, guess_dict, cur_phrase):
+def handle_guess(encoded_letter, decoded_letter, encoded_answer, cipher, guess_dict, cur_phrase):
 	"Add the guess to guess_dict. If it's correct, update cur_phrase. If not, tell the user it's wrong." 
-	add_guess(encoded_letter,decoded_letter,guess_dict)
+	
 	#print letter_guess(encoded_letter,decoded_letter,cur_phrase)
-	if decoded_letter in cipher.keys():
-		if cipher[decoded_letter]==encoded_letter:
-			print "Yes, " + encoded_letter + " does represent " + decoded_letter + "!"
+	if decoded_letter in cipher.keys() and encoded_letter in guess_dict.keys() and decoded_letter in guess_dict.get(encoded_letter):
+		#User has already guessed this combination
+		print "You've already guessed that combination!"
+		print "The current state of the phrase is " + cur_phrase
+		
+	elif encoded_letter in cipher.values():
+		add_guess(encoded_letter,decoded_letter,guess_dict)
+		#User has entered a new guess
+		if decoded_letter in cipher.keys() and cipher[decoded_letter]==encoded_letter:
+			#The guess is correct
+			print "YES, " + encoded_letter + " does represent " + decoded_letter + "!"
 			cur_phrase = "".join(cur_phrase).replace(encoded_letter,decoded_letter.lower())
+			print "The current state of the phrase is " + cur_phrase
+				
 		else:
-			print "WRONG!"
-			print "cur_phrase is " + cur_phrase		
+			#The guess is incorrect
+			print "NO, " + encoded_letter + " does not represent " + decoded_letter + "!"
+			print "The current state of the phrase is " + cur_phrase
+	else:
+		print "NO, " +encoded_letter +" is not part of the phrase"
+		print "The current state of the phrase is " + cur_phrase
+		
 	return cur_phrase		
 					
 		
@@ -95,9 +110,10 @@ def print_guesses(guess_dict):
 	count = 0
 	print "Encoded letter\tGuesses"
 	for k, v in guess_dict.iteritems():
-		count = count+1
 		print k+":\t\t:",
-		print v
+		for i in v:
+			print i,
+			count = count+1
 	print "You solved this in {0} guesses!".format(count)
 	
 #a list of all letters in the alphabet
@@ -123,7 +139,7 @@ while keep_playing:
 	won = 0
 	while ((choice != 'Q') and not won and keep_playing):
 		#Does the user want to guess a letter, solve the puzzle, or quit?
-		choice = raw_input('Would you like to "G"uess a letter or "S"olve the puzzle or "Q"uit? ').upper()
+		choice = raw_input('\nWould you like to "G"uess a letter or "S"olve the puzzle or "Q"uit? ').upper()
 		if choice == 'G':
 			#User wants to guess a letter
 			keep_guessing = 1
@@ -131,29 +147,16 @@ while keep_playing:
 				encoded_letter = raw_input('Enter the letter you wish to decode: ').upper()
 				if len(encoded_letter) > 1:
 					print "You may only enter one letter at a time. Please try again."
-				elif (encoded_letter in encoded_answer):
-					#User has chosen a letter in the code to decode
+				else:
 					keep_guessing = 0
 					decoded_letter = raw_input('Enter the letter you think is represented by {0}: '.format(encoded_letter)).upper()
-					try:
-						if encoded_letter in guess_dict.get(decoded_letter):
-							#User has already guessed this combination
-							print "You've already guessed that!"
-					except:
-						#User has made a new guess consisting of letter in the code and its possible value
-						cur_phrase = handle_valid_guess(encoded_letter, decoded_letter, encoded_answer, cipher, guess_dict, cur_phrase)
-						if cur_phrase.upper()==answer:
-							#User has guessed the last value needed to solve the puzzle
-							won = 1
-							print_guesses(guess_dict)
-							keep_playing = win_play_again(answer)
-					#print the current state of the guess dictionary
-					#print "guess_dict:"
-					#print guess_dict
-				else:
-					#User has chosen a letter to decode that is not part of the encoded phrase
-					print encoded_letter + " is not part of the encoded phrase. Please try again."
-					print "cur_phrase is " + cur_phrase					
+					cur_phrase = handle_guess(encoded_letter, decoded_letter, encoded_answer, cipher, guess_dict, cur_phrase)
+					if cur_phrase.upper()==answer:
+						#User has guessed the last value needed to solve the puzzle
+						won = 1
+						keep_playing = win_play_again(answer)
+						print_guesses(guess_dict)
+								
 		elif choice =='S':
 		#Handle solve
 			solution = raw_input('Please enter your solution: ')
@@ -161,8 +164,8 @@ while keep_playing:
 			print solution.upper()	
 			if solution.upper() == answer:
 				won = 1
-				keep_playing = win_play_again(answer)
 				print_guesses(guess_dict)
+				keep_playing = win_play_again(answer)
 		elif choice =='Q':
 			keep_playing = 0
 			print "Kthxbai!"
