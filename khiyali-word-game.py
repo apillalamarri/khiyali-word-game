@@ -60,8 +60,6 @@ def build_encoded_answer(answer, cipher, alphabet):
 	print "".join(encoded_answer)
 	return "".join(encoded_answer)
 	
-#cur_phrase = "".join(encoded_answer)
-#print "cur_phrase is {0} ".format(cur_phrase)
 
 
 def handle_guess(encoded_letter, decoded_letter, encoded_answer, cipher, guess_dict, cur_phrase):
