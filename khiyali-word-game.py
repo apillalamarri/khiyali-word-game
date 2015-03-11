@@ -156,7 +156,7 @@ while keep_playing:
 						print_guesses(guess_dict)
 								
 		elif choice =='S':
-		#Handle solve
+		#Handle the solution choice
 			solution = raw_input('Please enter your solution: ')
 			print "Solution:"
 			print solution.upper()	
