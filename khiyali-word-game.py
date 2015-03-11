@@ -62,7 +62,7 @@ def build_encoded_answer(answer, cipher, alphabet):
 	
 
 
-def handle_guess(encoded_letter, decoded_letter, encoded_answer, cipher, guess_dict, cur_phrase):
+def handle_guess(encoded_letter, decoded_letter, encoded_answer, cipher, guess_dict, decoded_dict, cur_phrase):
 	"Add the guess to guess_dict. If it's correct, update cur_phrase. If not, tell the user it's wrong." 
 	
 	#print letter_guess(encoded_letter,decoded_letter,cur_phrase)
@@ -76,6 +76,7 @@ def handle_guess(encoded_letter, decoded_letter, encoded_answer, cipher, guess_d
 		#User has entered a new guess
 		if decoded_letter in cipher.keys() and cipher[decoded_letter]==encoded_letter:
 			#The guess is correct
+			decoded_dict[encoded_letter]=decoded_letter
 			print "YES, " + encoded_letter + " does represent " + decoded_letter + "!"
 			cur_phrase = "".join(cur_phrase).replace(encoded_letter,decoded_letter.lower())
 			print "The current state of the phrase is " + cur_phrase
@@ -88,7 +89,7 @@ def handle_guess(encoded_letter, decoded_letter, encoded_answer, cipher, guess_d
 		print "NO, " +encoded_letter +" is not part of the phrase"
 		print "The current state of the phrase is " + cur_phrase
 		
-	return cur_phrase		
+	return cur_phrase
 					
 		
 def win_play_again(solution):
@@ -132,7 +133,7 @@ while keep_playing:
 	
 	#initialize the guess dictionary guess_dict, which will store the player's guesses during a given round
 	guess_dict={}
-	
+	decoded_dict={}
 	choice = ''
 	won = 0
 	while ((choice != 'Q') and not won and keep_playing):
@@ -145,10 +146,12 @@ while keep_playing:
 				encoded_letter = raw_input('Enter the letter you wish to decode: ').upper()
 				if len(encoded_letter) > 1:
 					print "You may only enter one letter at a time. Please try again."
+				elif encoded_letter in decoded_dict.keys():
+					print "You've already decoded " + encoded_letter + ". Please try again."
 				else:
 					keep_guessing = 0
 					decoded_letter = raw_input('Enter the letter you think is represented by {0}: '.format(encoded_letter)).upper()
-					cur_phrase = handle_guess(encoded_letter, decoded_letter, encoded_answer, cipher, guess_dict, cur_phrase)
+					cur_phrase = handle_guess(encoded_letter, decoded_letter, encoded_answer, cipher, guess_dict, decoded_dict, cur_phrase)
 					if cur_phrase.upper()==answer:
 						#User has guessed the last value needed to solve the puzzle
 						won = 1
